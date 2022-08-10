@@ -5,25 +5,15 @@ use std::io;
 use std::io::Read;
 
 mod language;
+mod tables;
 
 const TEMP_OUT: &str = r#"
 global _start
 
-section .data
-    message: db "Hello World!", 0xA
-       .len: equ $-message
-
 section .text
 _start:
-    mov rax, 0x01
-    mov rdi, 0x01
-    mov rsi, message
-    mov rdx, message.len
-    syscall
-    
-    mov rax, 0x3C
-    mov rdi, 0x00
-    syscall  
+    call main
+    ret
 "#;
 
 fn read_file(path: &str) -> Result<String, io::Error> {

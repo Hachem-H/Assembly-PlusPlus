@@ -11,6 +11,7 @@ pub enum Token {
     Str(String),
 
     Comment,
+    Register(String),
     Identifier(String),
 
     RCurBrack,
@@ -45,8 +46,31 @@ pub enum Associativity {
 
 #[allow(dead_code)]
 impl Token {
+    #[rustfmt::skip]
     pub fn to_token(symbol: &str) -> Option<Token> {
         match symbol {
+            "rax" | "rbx" | "rcx" | "rdx" | 
+            "eax" | "ebx" | "ecx" | "edx" | 
+            "ax"  | "bx"  | "cx"  | "dx"  | 
+            "ah"  | "bh"  | "ch"  | "dh"  |
+            "al"  | "bl"  | "cl"  | "dl"  |
+
+            "rsp" | "rbp" | "rsi" | "rdi" |
+            "esp" | "ebp" | "esi" | "edi" |
+            "sp"  | "bp"  | "si"  | "di"  |
+            "spl" | "bpl" | "sil" | "dil" |
+
+            "r8"  | "r9"  | "r10"  | "r11"  |
+            "r8d" | "r9d" | "r10d" | "r11d" |
+            "r8w" | "r9w" | "r10w" | "r11w" |
+            "r8b" | "r9b" | "r10b" | "r11b" |
+
+            "r12"  | "r13"  | "r14"  | "r15"  |
+            "r12d" | "r13d" | "r14d" | "r15d" |
+            "r12w" | "r13w" | "r14w" | "r15w" |
+            "r12b" | "r13b" | "r14b" | "r15b"
+            => Some(Token::Register(symbol.to_string())),
+
             "proc" => Some(Token::Procedure),
             "len" => Some(Token::Length),
 
