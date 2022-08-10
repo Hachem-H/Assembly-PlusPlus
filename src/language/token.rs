@@ -32,8 +32,8 @@ pub enum Token {
     LessThanEqual,
     GreaterThanEqual,
 
-    Comma,
     Bang,
+    Comma,
 }
 
 #[allow(dead_code)]

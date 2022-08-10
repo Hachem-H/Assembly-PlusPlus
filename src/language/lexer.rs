@@ -1,5 +1,8 @@
 use crate::language::token::Token;
 
+use std::str::FromStr;
+use std::i32;
+
 pub fn tokenize(source: &str) -> Vec<Token> {
     let mut char_iterator = source.chars().enumerate().peekable();
     let mut token_strings: Vec<String> = Vec::new();
@@ -68,6 +71,28 @@ pub fn tokenize(source: &str) -> Vec<Token> {
     }
 
     for token_string in token_strings {
+        let number = i32::from_str(&token_string);
+        if number.is_ok() {
+            tokens.push(Token::Number(number.unwrap()));
+            continue;
+        }
+
+        if token_string.starts_with("0x") {
+            let number_string = token_string.trim_start_matches("0x");
+            let number = i32::from_str_radix(number_string, 16); 
+            if number.is_ok() {
+                tokens.push(Token::Number(number.unwrap()));
+                continue;
+            }
+        } else if token_string.starts_with("0b") {
+            let number_string = token_string.trim_start_matches("0b");
+            let number = i32::from_str_radix(number_string, 2); 
+            if number.is_ok() {
+                tokens.push(Token::Number(number.unwrap()));
+                continue;
+            }
+        }
+
         let token = Token::to_token(&token_string);
         match token {
             None => tokens.push(Token::Identifier(token_string)),

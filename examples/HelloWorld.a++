@@ -1,9 +1,5 @@
-; this is a comment test
-; implementing comments is relatively similar to strings
 
 message = "Hello World!\n\0"
-
-; i wonder if this will work
 
 proc main
 {
@@ -12,6 +8,10 @@ proc main
     rsi = message
     rdx = len(message)
     syscall
+
+    rax = 0b110100 ; Testing Binary Numbers (52)
+    rax = 60       ; Testing Normal Numbers (60)
+    rax = 0x123    ; Testing Hex Numbers    (291)
 
     rax = SYS_EXIT
     rdi = 0x00
