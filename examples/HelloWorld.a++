@@ -1,4 +1,9 @@
+; this is a comment test
+; implementing comments is relatively similar to strings
+
 message = "Hello World!\n\0"
+
+; i wonder if this will work
 
 proc main
 {

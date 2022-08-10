@@ -5,10 +5,20 @@ pub fn tokenize(source: &str) -> Vec<Token> {
     let mut token_strings: Vec<String> = Vec::new();
     let mut tokens: Vec<Token> = Vec::new();
 
-    let mut buffer: String = String::new();
+    let mut is_comment = false;
     let mut is_string = false;
+
+    let mut buffer: String = String::new();
     while char_iterator.peek() != None {
         let (_, character) = char_iterator.next().unwrap();
+
+        if is_comment {
+            if character == '\n' {
+                is_comment = false;
+            } else {
+                continue;
+            }
+        }
 
         if character.is_whitespace() {
             if !is_string {
@@ -41,6 +51,11 @@ pub fn tokenize(source: &str) -> Vec<Token> {
                     is_string = true;
                     buffer.push('"');
                     buffer.push(char_iterator.next().unwrap().1);
+                    continue;
+                }
+
+                ';' => {
+                    is_comment = true;
                     continue;
                 }
                 _ => {}
