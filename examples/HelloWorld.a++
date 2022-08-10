@@ -1,0 +1,11 @@
+message = "Hello World!\n\0"
+
+proc main
+{
+    rax = message
+    >> rax
+
+    rax = SYS_EXIT
+    rdi = 0x00
+    syscall
+}
