@@ -12,7 +12,7 @@ section .data
 
 section .text
 _start:
-	mov rax, 0x01
+    mov rax, 0x01
     mov rdi, 0x01
     mov rsi, message
     mov rdx, message.len
@@ -47,7 +47,7 @@ message = "Hello World!\n\0"
 
 proc main 
 {
-    rax =  message
+    rax = message
     >> rax
     syscall
     
