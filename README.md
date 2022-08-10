@@ -47,7 +47,7 @@ message = "Hello World!\n\0"
 
 proc main 
 {
-    rax =  message
+    rax = message
     >> rax
     syscall
     
