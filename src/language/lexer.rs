@@ -1,84 +1,62 @@
 use crate::language::token::Token;
 
-use itertools::Itertools;
-
 pub fn tokenize(source: &str) -> Vec<Token> {
     let mut char_iterator = source.chars().enumerate().peekable();
+    let mut token_strings: Vec<String> = Vec::new();
     let mut tokens: Vec<Token> = Vec::new();
 
+    let mut buffer: String = String::new();
+    let mut is_string = false;
     while char_iterator.peek() != None {
         let (_, character) = char_iterator.next().unwrap();
 
-        match character {
-            character if character.is_whitespace() || character == '\n' => continue,
-
-            '"' => {
-                let string_chars: Vec<char> = char_iterator
-                    .by_ref()
-                    .take_while(|&(_, x)| x != '"')
-                    .map(|(_, x)| x)
-                    .collect();
-                let text: String = string_chars.into_iter().collect();
-                tokens.push(Token::Str(text));
-            }
-
-            '-' => {
-                if !tokens.is_empty() && tokens.last().unwrap().is_value() {
-                    tokens.push(Token::Minus);
-                } else {
-                    tokens.push(Token::UnaryMinus);
+        if character.is_whitespace() {
+            if !is_string {
+                if !buffer.is_empty() {
+                    token_strings.push(buffer.clone());
+                    buffer = String::new();
                 }
+                continue;
             }
+        }
 
-            '+' => tokens.push(Token::Plus),
-            '/' => tokens.push(Token::Divide),
-            '*' => tokens.push(Token::Multiply),
-
-            '!' => tokens.push(Token::Bang),
-            ',' => tokens.push(Token::Comma),
-
-            '{' => tokens.push(Token::LCurBrack),
-            '}' => tokens.push(Token::RCurBrack),
-
-            '[' => tokens.push(Token::LBrack),
-            ']' => tokens.push(Token::RBrack),
-
-            '(' => tokens.push(Token::LParen),
-            ')' => tokens.push(Token::RParen),
-
-            _ => {
-                let mut token_chars: Vec<char> = char_iterator
-                    .by_ref()
-                    .peeking_take_while(|&(_, x)| !(x.is_whitespace()))
-                    .map(|(_, x)| x)
-                    .collect();
-                token_chars.insert(0, character);
-                let mut token_string: String = token_chars.into_iter().collect();
-
-                match token_string.chars().last().unwrap() {
-                    ')' => {
-                        tokens.push(Token::RParen);
-                        token_string.pop();
+        if is_string {
+            if buffer.chars().last().unwrap() == '"' {
+                is_string = false;
+                token_strings.push(buffer.clone());
+                buffer = String::new();
+            }
+        } else {
+            match character {
+                '(' | '[' | '{' | '}' | ']' | ')' => {
+                    if !buffer.is_empty() {
+                        token_strings.push(buffer.clone());
                     }
-
-                    ']' => {
-                        tokens.push(Token::RBrack);
-                        token_string.pop();
-                    }
-
-                    '}' => {
-                        tokens.push(Token::RCurBrack);
-                        token_string.pop();
-                    }
-                    _ => {}
+                    buffer = String::new();
+                    token_strings.push(character.to_string());
+                    continue;
                 }
 
-                let token = Token::to_token(token_string.as_str());
-                match token {
-                    None => tokens.push(Token::Identifier(token_string.to_string())),
-                    Some(token) => tokens.push(token),
+                '"' => {
+                    is_string = true;
+                    buffer.push('"');
+                    buffer.push(char_iterator.next().unwrap().1);
+                    continue;
                 }
+                _ => {}
             }
+        }
+
+        if character != '\n' {
+            buffer.push(character);
+        }
+    }
+
+    for token_string in token_strings {
+        let token = Token::to_token(&token_string);
+        match token {
+            None => tokens.push(Token::Identifier(token_string)),
+            Some(token) => tokens.push(token),
         }
     }
 

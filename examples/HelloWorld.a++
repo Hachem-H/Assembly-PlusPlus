@@ -6,6 +6,7 @@ proc main
     rdi = STDOUT
     rsi = message
     rdx = len(message)
+    syscall
 
     rax = SYS_EXIT
     rdi = 0x00

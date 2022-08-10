@@ -34,7 +34,6 @@ pub enum Token {
 
     Comma,
     Bang,
-    UnaryMinus,
 }
 
 #[allow(dead_code)]
@@ -92,8 +91,7 @@ impl Token {
             | Token::Minus
             | Token::Divide
             | Token::Multiply
-            | Token::Bang
-            | Token::UnaryMinus => true,
+            | Token::Bang => true,
             _ => false,
         }
     }
@@ -112,7 +110,7 @@ impl Token {
 
     pub fn is_unary_operator(&self) -> bool {
         match *self {
-            Token::Bang | Token::UnaryMinus => true,
+            Token::Bang => true,
             _ => false,
         }
     }
@@ -134,7 +132,7 @@ impl Token {
         }
 
         match *self {
-            Token::UnaryMinus | Token::Bang => Ok(1 << 5),
+            Token::Bang => Ok(1 << 5),
             Token::Multiply | Token::Divide => Ok(1 << 4),
             Token::Minus | Token::Plus => Ok(1 << 3),
             _ => Ok(1 << 2),
@@ -143,7 +141,7 @@ impl Token {
 
     pub fn operator_associativity(&self) -> Result<Associativity, String> {
         match *self {
-            Token::UnaryMinus | Token::Bang => Ok(Associativity::Right),
+            Token::Bang => Ok(Associativity::Right),
             _ => Ok(Associativity::Left),
         }
     }
