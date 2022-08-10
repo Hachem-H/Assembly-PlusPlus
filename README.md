@@ -5,7 +5,7 @@
 
 ## Usage
 Running `--help` without any other argument shows the following usage prompt.
-```
+```sh
 OPTIONS:
     -h, --help
             Print help information
@@ -16,7 +16,7 @@ OPTIONS:
     -s, --source <SOURCE_FILE>
 ```
 Example:
-```
+```sh
 $ app -s SuperImportantScript.a++ -o AsmScary.asm
 $ app -s NASA-Hack.a++ # output in output.asm
 ```
