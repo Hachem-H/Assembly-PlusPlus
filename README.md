@@ -5,9 +5,9 @@
 
 ## Example
 The program we all start with of course is a basic `Hello World!`, which in x64 nasm looks quite scary.
-![logo](https://raw.githubusercontent.com/hh-Naram/Assembly-PlusPlus/master/Branding/HelloWorld.asm.png)
+![asm](https://raw.githubusercontent.com/hh-Naram/Assembly-PlusPlus/main/Branding/HelloWorld.asm.png)
 The same example can be written in `a++` using a fairly remarkably close and cleaner syntax.
-![logo](https://raw.githubusercontent.com/hh-Naram/Assembly-PlusPlus/master/Branding/HelloWorld.app.png)
+![app](https://raw.githubusercontent.com/hh-Naram/Assembly-PlusPlus/main/Branding/HelloWorld.app.png)
 
 ## Usage
 Running `--help` without any other argument shows the following usage prompt.
