@@ -2,8 +2,10 @@ message = "Hello World!\n\0"
 
 proc main
 {
-    rax = message
-    >> rax
+    rax = SYS_WRITE
+    rdi = STDOUT
+    rsi = message
+    rdx = len(message)
 
     rax = SYS_EXIT
     rdi = 0x00
