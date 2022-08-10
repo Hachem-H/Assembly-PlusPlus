@@ -3,12 +3,6 @@
 
 **NOTE**: `a++` is still in it's very very early stages and will probably remain in development for quite a long time. Syntax/API changes are almost inevitable, as there is no standard language spec.
 
-## Example
-The program we all start with of course is a basic `Hello World!`, which in x64 nasm looks quite scary.
-![asm](https://raw.githubusercontent.com/hh-Naram/Assembly-PlusPlus/main/Branding/HelloWorld-Example.asm.png)
-The same example can be written in `a++` using a fairly remarkably close and cleaner syntax.
-![app](https://raw.githubusercontent.com/hh-Naram/Assembly-PlusPlus/main/Branding/HelloWorld-Example.app.png)
-
 ## Usage
 Running `--help` without any other argument shows the following usage prompt.
 ```

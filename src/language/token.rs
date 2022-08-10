@@ -3,6 +3,7 @@
 pub enum Token {
     Procedure,
     Length,
+    Let,
 
     Syscall,
     Interrupt,
@@ -73,6 +74,7 @@ impl Token {
 
             "proc" => Some(Token::Procedure),
             "len" => Some(Token::Length),
+            "let" => Some(Token::Let),
 
             "syscall" => Some(Token::Syscall),
             "int" => Some(Token::Interrupt),

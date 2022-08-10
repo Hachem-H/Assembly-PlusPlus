@@ -1,4 +1,4 @@
-eessage = "Hello World!\n\0"
+let message = "Hello World!\n\0"
 
 proc main
 {

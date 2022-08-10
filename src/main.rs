@@ -51,15 +51,23 @@ fn main() {
     let file = read_file(&file_path);
     match file {
         Ok(source) => {
-            let tokens = language::lexer::tokenize(&source);
-            for token in tokens {
-                println!("{:?}", token);
-            }
+            let mut runtime = language::Runtime::new();
 
-            let write = fs::write(&output_path, TEMP_OUT);
-            match write {
-                Err(err) => println!("[ERR | IO]: {}", err),
-                _ => {}
+            let tokens = language::lexer::tokenize(&source);
+            let output = language::interpret(&mut runtime, &tokens);
+
+            match output {
+                Ok(_) => {
+                    let write = fs::write(&output_path, TEMP_OUT);
+                    match write {
+                        Err(err) => println!("[ERR | IO]: {}", err),
+                        _ => {}
+                    }
+                },
+
+                Err(error) => {
+                    println!("[ERR]: {}", error);
+                }
             }
         }
         Err(err) => println!("[ERR | IO]: {}", err),

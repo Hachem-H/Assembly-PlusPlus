@@ -1,4 +1,4 @@
-use crate::language::token::Token;
+use crate::language::Token;
 
 use std::str::FromStr;
 use std::i32;
