@@ -7,8 +7,8 @@ app (pronounced a-p-p, like cpp) or Assembly++, is a scripting language for nasm
 global _start
 
 section .data
-	message: db "Hello World!", 0xA
-	   .len: equ $-message
+    message: db "Hello World!", 0xA
+       .len: equ $-message
 
 section .text
 _start:
@@ -26,10 +26,11 @@ This basic hello world in x64 nasm can be written as so:
 ```
 message = "Hello World!\n"
 
-proc main {
-	rax = SYS_WRITE
-	rdi = STDOUT
-	rsi = message
+proc main 
+{
+    rax = SYS_WRITE
+    rdi = STDOUT
+    rsi = message
     rdx = len(message)
     syscall
     
@@ -42,11 +43,12 @@ proc main {
 Or, since I thought printing stuff out to the console was quite an important feature, we can use the built-in output operator which does require a null terminated string.
 
 ```
-message = "Hello World!\n", 0x00
+message = "Hello World!\n\0"
 
-proc main {
-	rax =  message
-    >>> rax
+proc main 
+{
+    rax =  message
+    >> rax
     syscall
     
     rax = SYS_EXIT
@@ -54,4 +56,3 @@ proc main {
     syscall
 }
 ```
-
