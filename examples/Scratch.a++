@@ -1,12 +1,10 @@
 let message = "Hello World!\n"
+let reserved : 4
 
 proc main
 {
-    rax = SYS_WRITE
-    rdi = STDOUT
-    rsi = message
-    rdx = len(message)
-    syscall
+    rax = message
+    reserved = rax
 
     rax = SYS_EXIT
     rdi = 0x00

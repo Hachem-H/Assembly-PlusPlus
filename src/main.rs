@@ -7,9 +7,12 @@ use std::io::Read;
 mod language;
 mod tables;
 
+const TEXT_HEADER: &str = "section .text\n";
+const DATA_HEADER: &str = "section .data\n";
+const BSS_HEADER: &str = "section .bss\n";
+
 const ENTRY_POINT: &str = r#"
 global _start
-section .text
 _start:
     call main
 
@@ -56,12 +59,17 @@ fn main() {
             let mut tokens = language::lexer::tokenize(&source);
             let text_section = language::interpret(&mut runtime, &mut tokens);
             let data_section = language::generate_data_section(&runtime);
+            let bss_section = language::generate_bss_section(&runtime);
 
             match text_section {
                 Ok(text_section) => {
+                    file_output.push_str(TEXT_HEADER);
                     file_output.push_str(&*text_section);
                     file_output.push_str(ENTRY_POINT);
+                    file_output.push_str(DATA_HEADER);
                     file_output.push_str(&*data_section);
+                    file_output.push_str(BSS_HEADER);
+                    file_output.push_str(&*bss_section);
                     println!("{}", file_output);
 
                     match fs::write(&output_path, file_output) {

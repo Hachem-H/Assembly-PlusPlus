@@ -24,8 +24,8 @@ pub enum Token {
 
     Plus,
     Minus,
-    Divide,
-    Multiply,
+    Slash,
+    Star,
 
     Equals,
     NotEqual,
@@ -36,6 +36,7 @@ pub enum Token {
 
     Bang,
     Comma,
+    Colon,
 }
 
 #[allow(dead_code)]
@@ -81,8 +82,8 @@ impl Token {
 
             "+" => Some(Token::Plus),
             "-" => Some(Token::Minus),
-            "/" => Some(Token::Divide),
-            "*" => Some(Token::Multiply),
+            "/" => Some(Token::Slash),
+            "*" => Some(Token::Star),
 
             "=" => Some(Token::Equals),
             "<>" => Some(Token::NotEqual),
@@ -100,6 +101,7 @@ impl Token {
 
             "," => Some(Token::Comma),
             "!" => Some(Token::Bang),
+            ":" => Some(Token::Colon),
 
             _ => None,
         }
@@ -115,8 +117,8 @@ impl Token {
             | Token::GreaterThanEqual
             | Token::Plus
             | Token::Minus
-            | Token::Divide
-            | Token::Multiply
+            | Token::Slash
+            | Token::Star
             | Token::Bang => true,
             _ => false,
         }
@@ -159,7 +161,7 @@ impl Token {
 
         match *self {
             Token::Bang => Ok(1 << 5),
-            Token::Multiply | Token::Divide => Ok(1 << 4),
+            Token::Star | Token::Slash => Ok(1 << 4),
             Token::Minus | Token::Plus => Ok(1 << 3),
             _ => Ok(1 << 2),
         }

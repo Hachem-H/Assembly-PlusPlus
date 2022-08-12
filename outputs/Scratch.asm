@@ -1,13 +1,8 @@
 section .text
 main:
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, message
-    mov rdx, 13
-    syscall
-
+    mov rax, message
+    mov reserved, rax
     mov rax, 60
-    mov rdi, 0
     syscall
 
     ret
@@ -19,3 +14,4 @@ _start:
 section .data
     message: db `Hello World!\n`
 section .bss
+    reserved: resb 4
