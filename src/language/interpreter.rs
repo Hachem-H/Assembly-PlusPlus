@@ -22,9 +22,6 @@ fn get_string_length(string: &String) -> i32 {
     let mut ret = 0;
     let mut value = string.clone();
 
-    value.remove(0);
-    value.pop();
-
     for i in 0..value.len() {
         let character = value.chars().nth(i).unwrap();
         if character == '\\' {
@@ -45,8 +42,6 @@ pub fn generate_data_section(runtime: &Runtime) -> String {
     let mut output = String::from("section .data\n");
     for (name, tvalue) in &runtime.variables {
         let mut value = tvalue.clone();
-        value.pop();
-        value.remove(0);
         write(&mut output, format!("{}: db `{}`", name, value));
     }
     output
@@ -61,6 +56,10 @@ pub fn interpret(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
         match tokens[i] {
             Token::Let => match (&tokens[i + 1], &tokens[i + 2], &tokens[i + 3]) {
                 (Token::Identifier(ref name), Token::Equals, Token::Identifier(ref value)) => {
+                    let mut value = value.clone();
+                    value.pop();
+                    value.remove(0);
+
                     runtime
                         .variables
                         .insert(name.to_string(), value.to_string());
