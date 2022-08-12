@@ -7,15 +7,6 @@ use std::io::Read;
 mod language;
 mod tables;
 
-const TEMP_OUT: &str = r#"
-global _start
-
-section .text
-_start:
-    call main
-    ret
-"#;
-
 fn read_file(path: &str) -> Result<String, io::Error> {
     let mut file = fs::File::open(path)?;
     let mut buffer = String::new();
@@ -53,17 +44,19 @@ fn main() {
         Ok(source) => {
             let mut runtime = language::Runtime::new();
 
-            let tokens = language::lexer::tokenize(&source);
-            let output = language::interpret(&mut runtime, &tokens);
+            let mut tokens = language::lexer::tokenize(&source);
+            let output = language::interpret(&mut runtime, &mut tokens);
 
             match output {
-                Ok(_) => {
-                    let write = fs::write(&output_path, TEMP_OUT);
+                Ok(output) => {
+                    println!("{}", output);
+
+                    let write = fs::write(&output_path, output);
                     match write {
                         Err(err) => println!("[ERR | IO]: {}", err),
                         _ => {}
                     }
-                },
+                }
 
                 Err(error) => {
                     println!("[ERR]: {}", error);
