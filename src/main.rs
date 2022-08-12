@@ -5,13 +5,16 @@ use std::io;
 use std::io::Read;
 
 mod language;
-mod tables;
 
 const ENTRY_POINT: &str = r#"
 global _start
 section .text
 _start:
     call main
+<<<<<<< HEAD
+
+=======
+>>>>>>> 1f18a9fe20cee215fd11496e516b6ef9a1d0e527
 "#;
 
 fn read_file(path: &str) -> Result<String, io::Error> {
