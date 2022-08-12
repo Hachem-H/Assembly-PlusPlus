@@ -5,4 +5,3 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "3.2.16", features = ["derive"] }
-linked-list = "0.0.3"

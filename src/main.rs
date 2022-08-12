@@ -7,6 +7,13 @@ use std::io::Read;
 mod language;
 mod tables;
 
+const ENTRY_POINT: &str = r#"
+global _start
+section .text
+_start:
+    call main
+"#;
+
 fn read_file(path: &str) -> Result<String, io::Error> {
     let mut file = fs::File::open(path)?;
     let mut buffer = String::new();
@@ -43,16 +50,20 @@ fn main() {
     match file {
         Ok(source) => {
             let mut runtime = language::Runtime::new();
+            let mut file_output = String::new();
 
             let mut tokens = language::lexer::tokenize(&source);
-            let output = language::interpret(&mut runtime, &mut tokens);
+            let text_section = language::interpret(&mut runtime, &mut tokens);
+            let data_section = language::generate_data_section(&runtime);
 
-            match output {
-                Ok(output) => {
-                    println!("{}", output);
+            match text_section {
+                Ok(text_section) => {
+                    file_output.push_str(&*text_section);
+                    file_output.push_str(ENTRY_POINT);
+                    file_output.push_str(&*data_section);
+                    println!("{}", file_output);
 
-                    let write = fs::write(&output_path, output);
-                    match write {
+                    match fs::write(&output_path, file_output) {
                         Err(err) => println!("[ERR | IO]: {}", err),
                         _ => {}
                     }
