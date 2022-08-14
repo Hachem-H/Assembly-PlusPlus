@@ -2,6 +2,7 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
     Global,
+    Extern,
     Procedure,
     Length,
     Let,
@@ -74,6 +75,7 @@ impl Token {
             "r12b" | "r13b" | "r14b" | "r15b"
             => Some(Token::Register(symbol.to_string())),
 
+            "extern" => Some(Token::Extern),
             "glob" => Some(Token::Global),
             "proc" => Some(Token::Procedure),
             "len" => Some(Token::Length),

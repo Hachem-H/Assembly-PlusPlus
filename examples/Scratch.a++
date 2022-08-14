@@ -5,6 +5,21 @@
 let message = "Hello World!\n"
 let reserved : 4
 
+; The best OpenGL windowing library
+; SDL can die.
+extern glfwInit
+extern glfwTerminate
+
+extern {
+; OpenGL is always fun
+    glClear,
+    glClearColor,
+
+; C functions why not
+    printf,
+    memcpy,
+}
+
 glob proc someProcedure
 {
     rax = message

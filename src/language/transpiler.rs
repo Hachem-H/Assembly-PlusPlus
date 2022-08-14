@@ -8,6 +8,7 @@ pub struct Runtime {
     variables: HashMap<String, String>,
     reserved: HashMap<String, usize>,
     globals: Vec<String>,
+    externs: Vec<String>,
 }
 impl Runtime {
     pub fn new() -> Self {
@@ -15,6 +16,7 @@ impl Runtime {
             variables: HashMap::new(),
             reserved: HashMap::new(),
             globals: Vec::new(),
+            externs: Vec::new(),
         }
     }
 
@@ -38,6 +40,15 @@ impl Runtime {
         let mut output = String::new();
         for name in &self.globals {
             output.push_str(&*format!("global {}\n", name));
+        }
+        output.push('\n');
+        output
+    }
+
+    pub fn generate_externs(&self) -> String {
+        let mut output = String::new();
+        for name in &self.externs {
+            output.push_str(&*format!("extern {}\n", name));
         }
         output.push('\n');
         output
@@ -73,7 +84,6 @@ fn get_string_length(string: &String) -> i32 {
 
     ret
 }
-
 struct Handler;
 impl Handler {
     pub fn assignment(
@@ -89,7 +99,7 @@ impl Handler {
             name = lh.0.to_string();
         } else {
             return Err(format!(
-                "[ERR | INTERPRET]: {} = {} -> {} unknown identifier",
+                "[ERR | PARSE]: {} = {} -> {} unknown identifier",
                 lh.0, rh.0, lh.0
             ));
         }
@@ -105,7 +115,7 @@ impl Handler {
                         Some(val) => value = val.to_string(),
                         None => {
                             return Err(format!(
-                                "[ERR | INTERPRET]: {} = {} -> {} undefined",
+                                "[ERR | PARSE]: {} = {} -> {} undefined",
                                 lh.0, rh.0, rh.0
                             ))
                         }
@@ -117,12 +127,37 @@ impl Handler {
         output.push_str(&*format!("mov {}, {}\n", name, value));
         Ok(output)
     }
+
+    pub fn external(index: &usize, tokens: &Vec<Token>) -> Result<Vec<String>, String> {
+        let mut output: Vec<String> = Vec::new();
+
+        for i in *index..tokens.len() {
+            match tokens[i] {
+                Token::Identifier(ref name) => match &tokens[i + 1] {
+                    Token::Comma => output.push(name.clone()),
+
+                    _ => {
+                        return Err(format!(
+                            "[ERR | PARSE]: Unknown syntax for extern, expected {}, [extern2...]",
+                            name
+                        ))
+                    }
+                },
+
+                Token::RCurBrack => break,
+                _ => {}
+            }
+        }
+
+        Ok(output)
+    }
 }
 
 pub fn transpile(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<String, String> {
     let mut output = String::new();
 
     let mut in_proc = false;
+    let mut in_extern = false;
     let mut indent = 0usize;
 
     for i in 0..tokens.len() {
@@ -141,7 +176,7 @@ pub fn transpile(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
                 (Token::Identifier(ref name), Token::Colon, Token::Number(ref value)) => {
                     runtime.reserved.insert(name.to_string(), *value as usize);
                 }
-                _ => return Err(format!("[ERR | INTERPRET]: Invalid \"let\" syntax.",)),
+                _ => return Err(format!("[ERR | PARSE]: Invalid \"let\" syntax.",)),
             },
 
             Token::Equals => {
@@ -176,7 +211,7 @@ pub fn transpile(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
                             Some(_) => write(&mut output, &indent, format!("mov {}, ", name)),
                             None => {
                                 return Err(format!(
-                                    "[ERR | INTERPRET]: {} = [] -> {} undefined",
+                                    "[ERR | PARSE]: {} = [] -> {} undefined",
                                     name, name
                                 ))
                             }
@@ -198,14 +233,14 @@ pub fn transpile(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
                             Some(value) => output.push_str(&*format!("{}\n", value)),
                             None => {
                                 return Err(format!(
-                                    "[ERR | INTERPRET]: len({}) -> {} undefined",
+                                    "[ERR | PARSE]: len({}) -> {} undefined",
                                     name, name
                                 ))
                             }
                         },
                     }
                 }
-                _ => return Err(format!("[ERR | INTERPRET]: Invalid \"len\" syntax.",)),
+                _ => return Err(format!("[ERR | PARSE]: Invalid \"len\" syntax.",)),
             },
 
             Token::Procedure => match (&tokens[i + 1], &tokens[i + 2]) {
@@ -223,16 +258,40 @@ pub fn transpile(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
 
                 (Token::Identifier(ref name), _) => {
                     return Err(format!(
-                        "[ERR | INTERPRET]: Invalid token after proc call.\n Expected proc {} {{",
+                        "[ERR | PARSE]: Invalid token after proc call.\n Expected proc {} {{",
                         name
                     ))
                 }
                 (_, Token::LCurBrack) => {
                     return Err(format!(
-                        "[ERR | INTERPRET]: Invalid token after proc call.\n Expected [name] {{"
+                        "[ERR | PARSE]: Invalid token after proc call.\n Expected [name] {{"
                     ))
                 }
-                _ => return Err(format!("[ERR | INTERPRET]: Invalid syntax for proc.")),
+                _ => return Err(format!("[ERR | PARSE]: Invalid syntax for proc.")),
+            },
+
+            Token::Extern => match (&tokens[i + 1], &tokens[i + 2]) {
+                (Token::LCurBrack, _) => {
+                    let result = Handler::external(&i, &tokens);
+                    match result {
+                        Ok(result) => {
+                            in_extern = true;
+                            indent += 4;
+                            for name in result {
+                                runtime.externs.push(name);
+                            }
+                        }
+                        _ => return Err(result.unwrap_err()),
+                    }
+                }
+
+                (Token::Identifier(ref name), _) => runtime.externs.push(name.clone()),
+
+                _ => {
+                    return Err(format!(
+                        "[ERR | PARSE]: Unknown syntax for extern, expected: extern [name]"
+                    ));
+                }
             },
 
             Token::RCurBrack => {
@@ -240,6 +299,11 @@ pub fn transpile(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
                     write(&mut output, &indent, format!("ret\n\n"));
                     in_proc = false;
                 }
+
+                if in_extern {
+                    in_extern = false;
+                }
+
                 indent -= 4;
             }
 

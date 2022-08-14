@@ -59,10 +59,12 @@ fn main() {
             let data_section = runtime.generate_data_section();
             let bss_section = runtime.generate_bss_section();
             let globals = runtime.generate_globals();
+            let externs = runtime.generate_externs();
 
             match text_section {
                 Ok(text_section) => {
                     file_output.push_str(&*globals);
+                    file_output.push_str(&*externs);
                     file_output.push_str(TEXT_HEADER);
                     file_output.push_str(&*text_section);
                     file_output.push_str(ENTRY_POINT);

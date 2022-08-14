@@ -41,7 +41,7 @@ pub fn tokenize(source: &str) -> Vec<Token> {
             }
         } else {
             match character {
-                '(' | '[' | '{' | '}' | ']' | ')' => {
+                '(' | '[' | '{' | '}' | ']' | ')' | ',' => {
                     if !buffer.is_empty() {
                         token_strings.push(buffer.clone());
                     }

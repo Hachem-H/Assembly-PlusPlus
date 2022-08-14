@@ -1,6 +1,13 @@
 global someProcedure
 global someOtherProc
 
+extern glfwInit
+extern glfwTerminate
+extern glClear
+extern glClearColor
+extern printf
+extern memcpy
+
 section .text
 someProcedure:
     mov rax, message
