@@ -10,7 +10,8 @@ let reserved : 4
 extern glfwInit
 extern glfwTerminate
 
-extern {
+extern 
+{
 ; OpenGL is always fun
     glClear,
     glClearColor,
