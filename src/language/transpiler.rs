@@ -7,30 +7,41 @@ use crate::tables::*;
 pub struct Runtime {
     variables: HashMap<String, String>,
     reserved: HashMap<String, usize>,
+    globals: Vec<String>,
 }
 impl Runtime {
     pub fn new() -> Self {
         Runtime {
             variables: HashMap::new(),
             reserved: HashMap::new(),
+            globals: Vec::new(),
         }
     }
-}
 
-pub fn generate_data_section(runtime: &Runtime) -> String {
-    let mut output = String::new();
-    for (name, value) in &runtime.variables {
-        write(&mut output, &4, format!("{}: db `{}`\n", name, value));
+    pub fn generate_data_section(&self) -> String {
+        let mut output = String::new();
+        for (name, value) in &self.variables {
+            write(&mut output, &4, format!("{}: db `{}`\n", name, value));
+        }
+        output
     }
-    output
-}
 
-pub fn generate_bss_section(runtime: &Runtime) -> String {
-    let mut output = String::new();
-    for (name, value) in &runtime.reserved {
-        write(&mut output, &4, format!("{}: resb {}\n", name, value));
+    pub fn generate_bss_section(&self) -> String {
+        let mut output = String::new();
+        for (name, value) in &self.reserved {
+            write(&mut output, &4, format!("{}: resb {}\n", name, value));
+        }
+        output
     }
-    output
+
+    pub fn generate_globals(&self) -> String {
+        let mut output = String::new();
+        for name in &self.globals {
+            output.push_str(&*format!("global {}\n", name));
+        }
+        output.push('\n');
+        output
+    }
 }
 
 fn write(output: &mut String, indent: &usize, string: String) {
@@ -103,12 +114,12 @@ impl Handler {
             };
         }
 
-        write(&mut output, &0, format!("mov {}, {}\n", name, value));
+        output.push_str(&*format!("mov {}, {}\n", name, value));
         Ok(output)
     }
 }
 
-pub fn interpret(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<String, String> {
+pub fn transpile(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<String, String> {
     let mut output = String::new();
 
     let mut in_proc = false;
@@ -155,6 +166,9 @@ pub fn interpret(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
                         (Token::Register(ref name), Token::Number(ref value)) => {
                             write(&mut output, &indent, format!("mov {}, {}\n", name, value))
                         }
+                        (Token::Register(ref name), Token::Register(ref value)) => {
+                            write(&mut output, &indent, format!("mov {}, {}\n", name, value))
+                        }
                         (Token::Register(ref name), _) => {
                             write(&mut output, &indent, format!("mov {}, ", name))
                         }
@@ -178,10 +192,10 @@ pub fn interpret(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
                 (Token::LParen, Token::Identifier(ref name), Token::RParen) => {
                     match runtime.variables.get(name) {
                         Some(value) => {
-                            write(&mut output, &0, format!("{}\n", get_string_length(&value)))
+                            output.push_str(&*format!("{}\n", get_string_length(&value)))
                         }
                         None => match runtime.reserved.get(name) {
-                            Some(value) => write(&mut output, &0, format!("{}\n", value)),
+                            Some(value) => output.push_str(&*format!("{}\n", value)),
                             None => {
                                 return Err(format!(
                                     "[ERR | INTERPRET]: len({}) -> {} undefined",
@@ -196,6 +210,12 @@ pub fn interpret(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
 
             Token::Procedure => match (&tokens[i + 1], &tokens[i + 2]) {
                 (Token::Identifier(ref name), Token::LCurBrack) => {
+                    if i > 0 {
+                        if tokens[i - 1] == Token::Global {
+                            runtime.globals.push(name.clone());
+                        }
+                    }
+
                     write(&mut output, &indent, format!("{}:\n", name));
                     in_proc = true;
                     indent += 4;
@@ -217,7 +237,7 @@ pub fn interpret(runtime: &mut Runtime, tokens: &mut Vec<Token>) -> Result<Strin
 
             Token::RCurBrack => {
                 if in_proc {
-                    write(&mut output, &indent, format!("ret\n"));
+                    write(&mut output, &indent, format!("ret\n\n"));
                     in_proc = false;
                 }
                 indent -= 4;

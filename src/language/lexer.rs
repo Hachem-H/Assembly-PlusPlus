@@ -84,7 +84,9 @@ pub fn tokenize(source: &str) -> Vec<Token> {
                 tokens.push(Token::Number(number.unwrap()));
                 continue;
             }
-        } else if token_string.starts_with("0b") {
+        }
+
+        if token_string.starts_with("0b") {
             let number_string = token_string.trim_start_matches("0b");
             let number = i32::from_str_radix(number_string, 2);
             if number.is_ok() {

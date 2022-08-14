@@ -1,6 +1,7 @@
 #[allow(dead_code)]
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
+    Global,
     Procedure,
     Length,
     Let,
@@ -73,6 +74,7 @@ impl Token {
             "r12b" | "r13b" | "r14b" | "r15b"
             => Some(Token::Register(symbol.to_string())),
 
+            "glob" => Some(Token::Global),
             "proc" => Some(Token::Procedure),
             "len" => Some(Token::Length),
             "let" => Some(Token::Let),

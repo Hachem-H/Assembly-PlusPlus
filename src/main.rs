@@ -11,11 +11,9 @@ const TEXT_HEADER: &str = "section .text\n";
 const DATA_HEADER: &str = "section .data\n";
 const BSS_HEADER: &str = "section .bss\n";
 
-const ENTRY_POINT: &str = r#"
-global _start
+const ENTRY_POINT: &str = r#"global _start
 _start:
     call main
-
 "#;
 
 fn read_file(path: &str) -> Result<String, io::Error> {
@@ -57,12 +55,14 @@ fn main() {
             let mut file_output = String::new();
 
             let mut tokens = language::lexer::tokenize(&source);
-            let text_section = language::interpret(&mut runtime, &mut tokens);
-            let data_section = language::generate_data_section(&runtime);
-            let bss_section = language::generate_bss_section(&runtime);
+            let text_section = language::transpile(&mut runtime, &mut tokens);
+            let data_section = runtime.generate_data_section();
+            let bss_section = runtime.generate_bss_section();
+            let globals = runtime.generate_globals();
 
             match text_section {
                 Ok(text_section) => {
+                    file_output.push_str(&*globals);
                     file_output.push_str(TEXT_HEADER);
                     file_output.push_str(&*text_section);
                     file_output.push_str(ENTRY_POINT);

@@ -15,7 +15,6 @@ main:
 global _start
 _start:
     call main
-
 section .data
     message: db `Hello World!\n`
 section .bss

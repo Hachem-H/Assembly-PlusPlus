@@ -1,11 +1,25 @@
+; This file can be safely ignored. It is simply a 
+; scratch file for me to test new features.
+; I can add it to .gitignore, but nah.
+
 let message = "Hello World!\n"
 let reserved : 4
 
-proc main
+glob proc someProcedure
 {
     rax = message
     reserved = rax
+}
 
+glob proc someOtherProc 
+{
+    rbx = rax
+    rcx = 0xA5
+    rdx = 0b11011
+}
+
+proc main
+{
     rax = SYS_EXIT
     rdi = 0x00
     syscall
